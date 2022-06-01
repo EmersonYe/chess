@@ -10,16 +10,26 @@ public class ChessGameController : MonoBehaviour
     [SerializeField] private Board board;
 
     private PieceCreator pieceCreator;
+    private ChessPlayer whitePlayer;
+    private ChessPlayer blackPlayer;
+    private ChessPlayer activePlayer;
 
     private void Awake()
     {
         SetDependencies();
+        CreatePlayers();
     }
 
     private void SetDependencies()
     {
         pieceCreator = GetComponent<PieceCreator>();
     }
+    private void CreatePlayers()
+    {
+        whitePlayer = new ChessPlayer(TeamColor.White, board);
+        blackPlayer = new ChessPlayer(TeamColor.Black, board);
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +39,20 @@ public class ChessGameController : MonoBehaviour
 
     private void StartNewGame()
     {
+        board.SetDependencies(this);
         CreatePiecesFromLayout(startingBoardLayout);
+        activePlayer = whitePlayer;
+        GenerateAllPossiblePlayerMoves(activePlayer);
+    }
+
+    private void GenerateAllPossiblePlayerMoves(ChessPlayer player)
+    {
+        player.GenerateAllPossibleMoves();
+    }
+
+    internal bool IsTeamTurnActive(TeamColor team)
+    {
+        return activePlayer.team == team;
     }
 
     private void CreatePiecesFromLayout(BoardLayout layout)
@@ -45,6 +68,23 @@ public class ChessGameController : MonoBehaviour
         }
     }
 
+    public void EndTurn()
+    {
+        GenerateAllPossiblePlayerMoves(activePlayer);
+        GenerateAllPossiblePlayerMoves(GetOpponentToPlayer(activePlayer));
+        ChangeActiveTeam();
+    }
+
+    private void ChangeActiveTeam()
+    {
+        activePlayer = GetOpponentToPlayer(activePlayer);
+    }
+
+    private ChessPlayer GetOpponentToPlayer(ChessPlayer player)
+    {
+        return player == whitePlayer ? blackPlayer : whitePlayer;
+    }
+
     private void CreatePieceAndInitialize(Vector2Int squareCoords, TeamColor team, Type type)
     {
         Piece newPiece = pieceCreator.CreatePiece(type).GetComponent<Piece>();
@@ -52,6 +92,11 @@ public class ChessGameController : MonoBehaviour
 
         Material teammaterial = pieceCreator.GetTeamMaterial(team);
         newPiece.SetMaterial(teammaterial);
+
+        board.SetPieceOnBoard(squareCoords, newPiece);
+
+        ChessPlayer currentPlayer = team == TeamColor.White ? whitePlayer : blackPlayer;
+        currentPlayer.addPiece(newPiece);
     }
 
     // Update is called once per frame

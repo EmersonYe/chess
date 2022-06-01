@@ -37,14 +37,17 @@ public abstract class Piece : MonoBehaviour
         return team == piece.team;
     }
 
-    public bool CamMoveTo(Vector2Int coords)
+    public bool CanMoveTo(Vector2Int coords)
     {
         return availableMoves.Contains(coords);
     }
 
     public virtual void MovePiece(Vector2Int coords)
     {
-        throw new NotImplementedException();
+        Vector3 targetPosition = board.CalculatePositionFromCoords(coords);
+        occupiedSquare = coords;
+        hasMoved = true;
+        tweener.MoveTo(transform, targetPosition);
     }
 
     protected void TryToAddMove(Vector2Int coords)
@@ -52,12 +55,44 @@ public abstract class Piece : MonoBehaviour
         availableMoves.Add(coords);
     }
 
-
     public void SetData(Vector2Int squareCoords, TeamColor team, Board board)
     {
         this.team = team;
         occupiedSquare = squareCoords;
         this.board = board;
         transform.position = board.CalculatePositionFromCoords(squareCoords);
+    }
+
+    protected void AddAvailableMovesInADirection(Vector2Int direction)
+    {
+        Vector2Int squareToCheck = occupiedSquare + direction;
+        while (board.CheckIfCoordsAreOnBoard(squareToCheck))
+        {
+            Piece pieceInTheWay = board.GetPieceOnSquare(squareToCheck);
+            if (pieceInTheWay != null)
+            {
+                if (!IsFromSameTeam(pieceInTheWay))
+                {
+                    availableMoves.Add(squareToCheck);
+                }
+                return;
+            }
+            availableMoves.Add(squareToCheck);
+            squareToCheck += direction;
+        }
+    }
+
+    protected bool IsDirectionAvailableMove(Vector2Int direction)
+    {
+        Vector2Int squareToCheck = occupiedSquare + direction;
+        if (board.CheckIfCoordsAreOnBoard(squareToCheck))
+        {
+            Piece pieceInTheWay = board.GetPieceOnSquare(squareToCheck);
+            if (pieceInTheWay == null || !IsFromSameTeam(pieceInTheWay))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -6,6 +6,11 @@ public class Bishop : Piece
 {
     public override List<Vector2Int> SelectAvailableSquares()
     {
-        throw new System.NotImplementedException();
+        availableMoves.Clear();
+        AddAvailableMovesInADirection(new Vector2Int(-1,-1));
+        AddAvailableMovesInADirection(new Vector2Int(-1,1));
+        AddAvailableMovesInADirection(new Vector2Int(1,-1));
+        AddAvailableMovesInADirection(new Vector2Int(1,1));
+        return availableMoves;
     }
 }

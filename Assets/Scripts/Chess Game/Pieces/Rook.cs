@@ -6,6 +6,11 @@ public class Rook : Piece
 {
     public override List<Vector2Int> SelectAvailableSquares()
     {
-        throw new System.NotImplementedException();
+        availableMoves.Clear();
+        AddAvailableMovesInADirection(Vector2Int.down);
+        AddAvailableMovesInADirection(Vector2Int.up);
+        AddAvailableMovesInADirection(Vector2Int.left);
+        AddAvailableMovesInADirection(Vector2Int.right);
+        return availableMoves;
     }
 }

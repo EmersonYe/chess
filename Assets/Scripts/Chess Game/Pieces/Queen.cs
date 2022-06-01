@@ -6,6 +6,15 @@ public class Queen : Piece
 {
     public override List<Vector2Int> SelectAvailableSquares()
     {
-        throw new System.NotImplementedException();
+        availableMoves.Clear();
+        AddAvailableMovesInADirection(new Vector2Int(-1,-1));
+        AddAvailableMovesInADirection(new Vector2Int(-1,1));
+        AddAvailableMovesInADirection(new Vector2Int(1,-1));
+        AddAvailableMovesInADirection(new Vector2Int(1,1));
+        AddAvailableMovesInADirection(Vector2Int.down);
+        AddAvailableMovesInADirection(Vector2Int.up);
+        AddAvailableMovesInADirection(Vector2Int.left);
+        AddAvailableMovesInADirection(Vector2Int.right);
+        return availableMoves;
     }
 }
