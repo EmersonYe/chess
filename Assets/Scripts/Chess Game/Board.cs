@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SquareSelectorCreator))]
 public class Board : MonoBehaviour
 {
     public const int BOARD_SIZE = 8;
@@ -13,9 +14,11 @@ public class Board : MonoBehaviour
     private Piece[,] grid;
     private Piece selectedPiece;
     private ChessGameController chessController;
+    private SquareSelectorCreator squareSelectorCreator;
 
     private void Awake()
     {
+        squareSelectorCreator = GetComponent<SquareSelectorCreator>();
         CreateGrid();
     }
 
@@ -36,9 +39,8 @@ public class Board : MonoBehaviour
     public void OnSquareSelected(Vector3 inputPosition)
     {
         Vector2Int coords = CalculateCoordsFromPosition(inputPosition);
-        Debug.Log("OnSquareSelected. Coords: " + coords);
+        Debug.Log(coords);
         Piece piece = GetPieceOnSquare(coords);
-        Debug.Log("Clicked on piece: " + piece);
         if(selectedPiece)
         {
             if(piece != null && selectedPiece == piece)
@@ -76,12 +78,29 @@ public class Board : MonoBehaviour
     private void SelectPiece(Piece piece)
     {
         selectedPiece = piece;
-        Debug.Log("Selected " + piece);
+        ShowSelectionSquares(selectedPiece.availableMoves);
+    }
+
+    private void ShowSelectionSquares(List<Vector2Int> availableMoves)
+    {
+        Dictionary<Vector3, bool> squareData = new Dictionary<Vector3, bool>();
+        foreach (Vector2Int availableMoveCoord in availableMoves)
+        {
+            Vector3 position = CalculatePositionFromCoords(availableMoveCoord);
+            bool isSquareFree = GetPieceOnSquare(availableMoveCoord) == null;
+            squareData.Add(position, isSquareFree);
+        }
+        squareSelectorCreator.ShowSelection(squareData);
     }
 
     private void DeselectPiece()
     {
+        foreach (Vector2Int move in selectedPiece.availableMoves)
+        {
+            Debug.Log(move);
+        }
         selectedPiece = null;
+        squareSelectorCreator.ClearSelection();
     }
 
     public Piece GetPieceOnSquare(Vector2Int coords)
@@ -95,7 +114,6 @@ public class Board : MonoBehaviour
     {
         if (coords.x < 0 || coords.y < 0 || coords.x >= BOARD_SIZE || coords.y >= BOARD_SIZE)
         {
-            Debug.Log("Clicked outside of board");
             return false;
         }
         return true;

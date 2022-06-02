@@ -29,6 +29,11 @@ public abstract class Piece : MonoBehaviour
 
     public void SetMaterial(Material material)
     {
+        // Not sure why this is needed but sometimes material setter doesn't get set at this point.
+        if (materialSetter == null)
+        {
+            materialSetter = GetComponent<MaterialSetter>();
+        }
         materialSetter.SetSingleMaterial(material);
     }
 

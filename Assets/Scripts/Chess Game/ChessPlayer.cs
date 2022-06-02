@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class ChessPlayer : MonoBehaviour
 {
-    public TeamColor team { get; }
-    public Board board { get; }
+    public TeamColor team { get; private set; }
+    public Board board { get; private set; }
     public List<Piece> activePieces { get; private set; }
 
-    public ChessPlayer(TeamColor team, Board board)
+    public void InitializeChessPlayer(TeamColor team, Board board)
     {
         this.team = team;
         this.board = board;

@@ -26,8 +26,10 @@ public class ChessGameController : MonoBehaviour
     }
     private void CreatePlayers()
     {
-        whitePlayer = new ChessPlayer(TeamColor.White, board);
-        blackPlayer = new ChessPlayer(TeamColor.Black, board);
+        whitePlayer = gameObject.AddComponent<ChessPlayer>();
+        blackPlayer = gameObject.AddComponent<ChessPlayer>();
+        whitePlayer.InitializeChessPlayer(TeamColor.White, board);
+        blackPlayer.InitializeChessPlayer(TeamColor.Black, board);
     }
 
 
@@ -78,11 +80,13 @@ public class ChessGameController : MonoBehaviour
     private void ChangeActiveTeam()
     {
         activePlayer = GetOpponentToPlayer(activePlayer);
+        Debug.Log("Active team: " + activePlayer.team);
     }
 
     private ChessPlayer GetOpponentToPlayer(ChessPlayer player)
     {
-        return player == whitePlayer ? blackPlayer : whitePlayer;
+        Debug.Log(player + ".Equals("+whitePlayer+"): " + player.Equals(whitePlayer));
+        return player.Equals(whitePlayer) ? blackPlayer : whitePlayer;
     }
 
     private void CreatePieceAndInitialize(Vector2Int squareCoords, TeamColor team, Type type)

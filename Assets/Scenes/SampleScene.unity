@@ -319,6 +319,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d2f41e8965df4147aed9090a9ec2caf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &47658607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 47658602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27895c68444f6464fb91c3918d1aa492, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  freeSquareMaterial: {fileID: 2100000, guid: c3f1a313fd15f2648a9846f3b4ad10a5, type: 2}
+  opponentSquareMaterial: {fileID: 2100000, guid: 5e66b3d6a935fde439f9c248a427dd80, type: 2}
+  selectorPrefab: {fileID: 3769709257363076625, guid: e12256ac254e3be479e0f04b843726d5, type: 3}
 --- !u!1001 &183231212
 PrefabInstance:
   m_ObjectHideFlags: 0
