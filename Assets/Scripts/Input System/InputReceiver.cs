@@ -9,6 +9,6 @@ public abstract class InputReceiver : MonoBehaviour
     public abstract void OnInputReceived();
     private void Awake()
     {
-        inputHandlers = new IInputHandler[]{GetComponent<IInputHandler>()};
+        inputHandlers = GetComponents<IInputHandler>();
     }
 }

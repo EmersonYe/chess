@@ -58,6 +58,12 @@ public class Board : MonoBehaviour
         }
     }
 
+    internal void OnGameRestarted()
+    {
+        selectedPiece = null;
+        CreateGrid();
+    }
+
     private void OnSelectedPieceMoved(Vector2Int coords, Piece piece)
     {
         TryToCapture(coords);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,5 +36,10 @@ public class ChessPlayer : MonoBehaviour
             if (board.HasPiece(piece))
                 piece.SelectAvailableSquares();
         }
+    }
+
+    internal void OnGameRestarted()
+    {
+        activePieces.Clear();
     }
 }
