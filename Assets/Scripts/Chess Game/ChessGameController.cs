@@ -95,11 +95,21 @@ public class ChessGameController : MonoBehaviour
             ChangeActiveTeam();
     }
 
+    internal void OnPieceRemoved(Piece piece)
+    {
+        ChessPlayer owner = GetPlayer(piece.team);
+        owner.removePiece(piece);
+        Destroy(piece.gameObject);
+    }
+
     private bool CheckIfGameIsFinished()
     {
         // Check if opponent king is in check.
         ChessPlayer opponent = GetOpponentToPlayer(activePlayer);
-        if (IsPlayerInCheck(opponent))
+        bool isPlayerInCheck = IsPlayerInCheck(opponent);
+        // Only remove self-check moves after seeing if king is in check.
+        RemoveMovesThatPutOwnKingIntoCheck(opponent);
+        if (isPlayerInCheck)
         {
             Debug.Log(opponent.team + " in check.");
             bool isOpponentKingSafe = false;
@@ -109,30 +119,103 @@ public class ChessGameController : MonoBehaviour
                 foreach (Vector2Int coordsToMoveTo in piece.availableMoves)
                 {
                     Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
-                    board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, pieceOnCoords);
+                    board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, null);
+                    if (pieceOnCoords != null)
+                    {
+                        GetPlayer(pieceOnCoords.team).removePiece(pieceOnCoords);
+                    }
                     activePlayer.GenerateAllPossibleMoves();
                     if (!IsPlayerInCheck(opponent))
+                    {
+                        // TODO(mrsn): consider breaking out of loop here
                         isOpponentKingSafe = true;
+                    }
+                    board.UpdateBoardOnPieceMove(piece.occupiedSquare, coordsToMoveTo, piece, pieceOnCoords);
+                    if (pieceOnCoords != null)
+                    {
+                        GetPlayer(pieceOnCoords.team).addPiece(pieceOnCoords);
+                    }
                 }
             }
             if (!isOpponentKingSafe)
+            {
                 Debug.Log("Opponent checkmated. Game over.");
                 return true;
-        }    
+            }
+            activePlayer.GenerateAllPossibleMoves();
+        }
+
         // Check for stalemate
+        if (!HasAvailableMoves(opponent))
+        {
+            return true;
+        }
+
+        // TODO(mrsn): Check for stalemate by repetition.
         return false;
+    }
+
+    private bool HasAvailableMoves(ChessPlayer player)
+    {
+        foreach (Piece piece in player.activePieces)
+        {
+            if (piece.availableMoves.Count > 0)
+            {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    private void RemoveMovesThatPutOwnKingIntoCheck(ChessPlayer player)
+    {
+        foreach (Piece piece in player.activePieces)
+        {
+            // Cacheing coords to remove instead of removing in the foreach loop because cannot modify the enum during the loop.
+            List<Vector2Int> coordsToRemove = new List<Vector2Int>();
+            foreach (Vector2Int coordsToMoveTo in piece.availableMoves)
+            {
+                Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
+                board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, null);
+                // Not sure if this is needed
+                if (pieceOnCoords != null)
+                {
+                    GetPlayer(pieceOnCoords.team).removePiece(pieceOnCoords);
+                }
+                GetOpponentToPlayer(player).GenerateAllPossibleMoves();
+                if (IsPlayerInCheck(player))
+                {
+                    coordsToRemove.Add(coordsToMoveTo);
+                }
+                board.UpdateBoardOnPieceMove(piece.occupiedSquare, coordsToMoveTo, piece, pieceOnCoords);
+                // Not sure if this is needed
+                if (pieceOnCoords != null)
+                {
+                    GetPlayer(pieceOnCoords.team).addPiece(pieceOnCoords);
+                }
+            }
+            piece.availableMoves.RemoveAll(x => coordsToRemove.Contains(x));
+        }
     }
 
     public bool IsPlayerInCheck(ChessPlayer player)
     {
+        // Necessary to prevent hanging when king is not initialized.
+        if (player.king == null)
+            return false;
         // For some reason this is returning true after the first move
-        Vector2Int opponentKingCoords = player.king.occupiedSquare;
+        Vector2Int kingCoords = player.king.occupiedSquare;
         int numPiecesAttackingKing = GetOpponentToPlayer(player).activePieces
             .Select(x => x.availableMoves)
-            .Where(x => x.Contains(opponentKingCoords))
+            .Where(x => x.Contains(kingCoords))
             .Count();
         return numPiecesAttackingKing > 0;
 
+    }
+    internal ChessPlayer GetPlayer(TeamColor team)
+    {
+        return team.Equals(TeamColor.White) ? whitePlayer : blackPlayer;
     }
 
     private void EndGame()

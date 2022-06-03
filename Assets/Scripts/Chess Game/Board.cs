@@ -42,7 +42,6 @@ public class Board : MonoBehaviour
         if (!chessController.IsGameInProgress())
             return;
         Vector2Int coords = CalculateCoordsFromPosition(inputPosition);
-        Debug.Log(coords);
         Piece piece = GetPieceOnSquare(coords);
         if(selectedPiece)
         {
@@ -61,10 +60,29 @@ public class Board : MonoBehaviour
 
     private void OnSelectedPieceMoved(Vector2Int coords, Piece piece)
     {
+        TryToCapture(coords);
         UpdateBoardOnPieceMove(coords, piece.occupiedSquare, piece, null);
         selectedPiece.MovePiece(coords);
         DeselectPiece();
         EndTurn();
+    }
+
+    private void TryToCapture(Vector2Int coords)
+    {
+        Piece piece = GetPieceOnSquare(coords);
+        if(piece != null && !selectedPiece.IsFromSameTeam(piece))
+        {
+            CapturePiece(piece);
+        }
+    }
+
+    private void CapturePiece(Piece piece)
+    {
+        if (piece != null)
+        {
+            grid[piece.occupiedSquare.x, piece.occupiedSquare.y] = null;
+            chessController.OnPieceRemoved(piece);
+        }
     }
 
     private void EndTurn()
@@ -81,6 +99,7 @@ public class Board : MonoBehaviour
     private void SelectPiece(Piece piece)
     {
         selectedPiece = piece;
+        //TODO(mrsn): consider adding a call to chessController.removeMovesThatPutOwnKingIntoCheck here.
         ShowSelectionSquares(selectedPiece.availableMoves);
     }
 
@@ -98,10 +117,6 @@ public class Board : MonoBehaviour
 
     private void DeselectPiece()
     {
-        foreach (Vector2Int move in selectedPiece.availableMoves)
-        {
-            Debug.Log(move);
-        }
         selectedPiece = null;
         squareSelectorCreator.ClearSelection();
     }
