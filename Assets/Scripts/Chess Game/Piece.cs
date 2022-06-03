@@ -78,11 +78,11 @@ public abstract class Piece : MonoBehaviour
             {
                 if (!IsFromSameTeam(pieceInTheWay))
                 {
-                    availableMoves.Add(squareToCheck);
+                    TryToAddMove(squareToCheck);
                 }
                 return;
             }
-            availableMoves.Add(squareToCheck);
+            TryToAddMove(squareToCheck);
             squareToCheck += direction;
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(PieceCreator))]
 public class ChessGameController : MonoBehaviour
 {
+    private enum GameState { Init, Play, Finished }
     [SerializeField] private BoardLayout startingBoardLayout;
     [SerializeField] private Board board;
 
@@ -13,6 +15,7 @@ public class ChessGameController : MonoBehaviour
     private ChessPlayer whitePlayer;
     private ChessPlayer blackPlayer;
     private ChessPlayer activePlayer;
+    private GameState gameState;
 
     private void Awake()
     {
@@ -36,15 +39,27 @@ public class ChessGameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartNewGame();       
+        StartNewGame();
     }
 
     private void StartNewGame()
     {
+        SetGameState(GameState.Init);
         board.SetDependencies(this);
         CreatePiecesFromLayout(startingBoardLayout);
         activePlayer = whitePlayer;
         GenerateAllPossiblePlayerMoves(activePlayer);
+        SetGameState(GameState.Play);
+    }
+
+    private void SetGameState(GameState gameState)
+    {
+        this.gameState = gameState;
+    }
+
+    public bool IsGameInProgress()
+    {
+        return gameState.Equals(GameState.Play);
     }
 
     private void GenerateAllPossiblePlayerMoves(ChessPlayer player)
@@ -74,7 +89,55 @@ public class ChessGameController : MonoBehaviour
     {
         GenerateAllPossiblePlayerMoves(activePlayer);
         GenerateAllPossiblePlayerMoves(GetOpponentToPlayer(activePlayer));
-        ChangeActiveTeam();
+        if (CheckIfGameIsFinished())
+            EndGame();
+        else
+            ChangeActiveTeam();
+    }
+
+    private bool CheckIfGameIsFinished()
+    {
+        // Check if opponent king is in check.
+        ChessPlayer opponent = GetOpponentToPlayer(activePlayer);
+        if (IsPlayerInCheck(opponent))
+        {
+            Debug.Log(opponent.team + " in check.");
+            bool isOpponentKingSafe = false;
+            // Check if opponent has any available moves to get out of check.
+            foreach (Piece piece in opponent.activePieces)
+            {
+                foreach (Vector2Int coordsToMoveTo in piece.availableMoves)
+                {
+                    Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
+                    board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, pieceOnCoords);
+                    activePlayer.GenerateAllPossibleMoves();
+                    if (!IsPlayerInCheck(opponent))
+                        isOpponentKingSafe = true;
+                }
+            }
+            if (!isOpponentKingSafe)
+                Debug.Log("Opponent checkmated. Game over.");
+                return true;
+        }    
+        // Check for stalemate
+        return false;
+    }
+
+    public bool IsPlayerInCheck(ChessPlayer player)
+    {
+        // For some reason this is returning true after the first move
+        Vector2Int opponentKingCoords = player.king.occupiedSquare;
+        int numPiecesAttackingKing = GetOpponentToPlayer(player).activePieces
+            .Select(x => x.availableMoves)
+            .Where(x => x.Contains(opponentKingCoords))
+            .Count();
+        return numPiecesAttackingKing > 0;
+
+    }
+
+    private void EndGame()
+    {
+        SetGameState(GameState.Finished);
     }
 
     private void ChangeActiveTeam()
@@ -85,7 +148,6 @@ public class ChessGameController : MonoBehaviour
 
     private ChessPlayer GetOpponentToPlayer(ChessPlayer player)
     {
-        Debug.Log(player + ".Equals("+whitePlayer+"): " + player.Equals(whitePlayer));
         return player.Equals(whitePlayer) ? blackPlayer : whitePlayer;
     }
 
@@ -101,11 +163,16 @@ public class ChessGameController : MonoBehaviour
 
         ChessPlayer currentPlayer = team == TeamColor.White ? whitePlayer : blackPlayer;
         currentPlayer.addPiece(newPiece);
+
+        if (type.ToString().Equals("King"))
+        {
+            currentPlayer.king = (King)newPiece;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

@@ -38,6 +38,9 @@ public class Board : MonoBehaviour
 
     public void OnSquareSelected(Vector3 inputPosition)
     {
+        // TODO(mrsn): Consider moving this to BoardInputHandler.
+        if (!chessController.IsGameInProgress())
+            return;
         Vector2Int coords = CalculateCoordsFromPosition(inputPosition);
         Debug.Log(coords);
         Piece piece = GetPieceOnSquare(coords);
@@ -69,7 +72,7 @@ public class Board : MonoBehaviour
         chessController.EndTurn();
     }
 
-    private void UpdateBoardOnPieceMove(Vector2Int newCoords, Vector2Int oldCoords, Piece newPiece, Piece oldPiece)
+    public void UpdateBoardOnPieceMove(Vector2Int newCoords, Vector2Int oldCoords, Piece newPiece, Piece oldPiece)
     {
         grid[oldCoords.x, oldCoords.y] = oldPiece;
         grid[newCoords.x, newCoords.y] = newPiece;

@@ -7,6 +7,7 @@ public class ChessPlayer : MonoBehaviour
     public TeamColor team { get; private set; }
     public Board board { get; private set; }
     public List<Piece> activePieces { get; private set; }
+    public King king { get; set; }
 
     public void InitializeChessPlayer(TeamColor team, Board board)
     {

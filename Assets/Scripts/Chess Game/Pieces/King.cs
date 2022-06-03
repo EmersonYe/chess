@@ -19,7 +19,7 @@ public class King : Piece
         foreach (Vector2Int direction in directions)
         {
             if (IsDirectionAvailableMove(direction))
-                availableMoves.Add(occupiedSquare + direction);
+                TryToAddMove(occupiedSquare + direction);
         }
         return availableMoves;
     }
