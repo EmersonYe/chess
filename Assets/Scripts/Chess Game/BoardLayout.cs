@@ -6,8 +6,10 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Scriptable Objects/Board/Layout")]
 public class BoardLayout : ScriptableObject
 {
+    // TODO(mrsn): figure out how to make this class private or internal.
+    // This class is public to expose it to tests. Probably an antipattern.
     [Serializable]
-    private class BoardSquareSetup
+    public class BoardSquareSetup
     {
         public Vector2Int position;
         public PieceType pieceType;
@@ -49,6 +51,12 @@ public class BoardLayout : ScriptableObject
             throw new IndexOutOfRangeException("Index: " + index + "out of range: " + boardSquares.Length);
         }
         return boardSquares[index].teamColor;
+    }
+    
+    // Used for testing.
+    public void SetBoardSquares(BoardSquareSetup[] boardSquares)
+    {
+        this.boardSquares = boardSquares;
     }
 
 }

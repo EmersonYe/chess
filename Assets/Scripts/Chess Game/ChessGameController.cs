@@ -8,7 +8,9 @@ using UnityEngine;
 public class ChessGameController : MonoBehaviour
 {
     private enum GameState { Init, Play, Finished }
-    [SerializeField] private BoardLayout startingBoardLayout;
+    // TODO(mrsn): figure out how to make this field private or internal.
+    // This field is public to expose it to tests. This is an antipattern.
+    [SerializeField] public BoardLayout startingBoardLayout;
     [SerializeField] private Board board;
     [SerializeField] private ChessUIManager uiManager;
 
