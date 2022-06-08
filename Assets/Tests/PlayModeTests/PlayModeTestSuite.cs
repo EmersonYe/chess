@@ -9,6 +9,7 @@ public class PlayModeTestSuite
 {
     private BoardInputHandler boardInputHandler;
     private Board board;
+    private ChessGameController chessGameController;
 
     [UnitySetUp]
     public IEnumerator Setup()
@@ -17,6 +18,7 @@ public class PlayModeTestSuite
         yield return null;
         boardInputHandler = GameObject.FindObjectOfType<BoardInputHandler>();
         board = GameObject.FindObjectOfType<Board>();
+        chessGameController = GameObject.FindObjectOfType<ChessGameController>();
     }
 
     [UnityTest]
@@ -45,7 +47,7 @@ public class PlayModeTestSuite
         ClickOnCoords(7, 3);
         yield return null;
 
-        Assert.False(GameObject.FindObjectOfType<ChessGameController>().IsGameInProgress());
+        Assert.False(chessGameController.IsGameInProgress());
     }
 
     [UnityTest]
@@ -69,11 +71,64 @@ public class PlayModeTestSuite
         ClickOnCoords(5, 2);
         ClickOnCoords(5, 6);
         yield return null;
-        Assert.True(GameObject.FindObjectOfType<ChessGameController>().IsGameInProgress());
+        Assert.True(chessGameController.IsGameInProgress());
         King whiteKing = (King) board.GetPieceOnSquare(new Vector2Int(4, 7));
         Assert.That(whiteKing.availableMoves.Contains(new Vector2Int(5, 6)));
         ClickOnCoords(4, 7);
         ClickOnCoords(5, 6);
+    }
+
+    [UnityTest]
+    public IEnumerator PromoteToCheckmate()
+    {
+        ClickOnCoords(5, 1);
+        ClickOnCoords(5, 2);
+        // Waiting move, just move knight somewhere
+        ClickOnCoords(1, 7);
+        ClickOnCoords(0, 5);
+
+        ClickOnCoords(5, 2);
+        ClickOnCoords(5, 3);
+        // Waiting move, just move knight back
+        ClickOnCoords(0, 5);
+        ClickOnCoords(1, 7);
+
+        ClickOnCoords(5, 3);
+        ClickOnCoords(5, 4);
+        // Waiting move, just move knight somewhere
+        ClickOnCoords(1, 7);
+        ClickOnCoords(0, 5);
+
+        ClickOnCoords(5, 4);
+        ClickOnCoords(5, 5);
+        // Waiting move, just move knight back
+        ClickOnCoords(0, 5);
+        ClickOnCoords(1, 7);
+
+        ClickOnCoords(5, 5);
+        ClickOnCoords(4, 6);
+        // Waiting move, just move knight somewhere
+        ClickOnCoords(1, 7);
+        ClickOnCoords(0, 5);
+
+        ClickOnCoords(3, 1);
+        ClickOnCoords(3, 2);
+        // Waiting move, just move knight back
+        ClickOnCoords(0, 5);
+        ClickOnCoords(1, 7);
+
+        ClickOnCoords(2, 0);
+        ClickOnCoords(6, 4);
+        // Waiting move, just move knight somewhere
+        ClickOnCoords(1, 7);
+        ClickOnCoords(0, 5);
+
+        ClickOnCoords(4, 6);
+        ClickOnCoords(3, 7);
+        Assert.IsInstanceOf(typeof(Queen), board.GetPieceOnSquare(new Vector2Int(3, 7)));
+
+        yield return null;
+        Assert.False(chessGameController.IsGameInProgress());
     }
 
     private void ClickOnCoords(int x, int y)

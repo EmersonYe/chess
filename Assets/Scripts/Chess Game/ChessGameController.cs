@@ -121,6 +121,12 @@ public class ChessGameController : MonoBehaviour
         owner.removePiece(piece);
         Destroy(piece.gameObject);
     }
+    internal void Promote(Piece piece)
+    {
+        Vector2Int coords = piece.occupiedSquare;
+        OnPieceRemoved(piece);
+        CreatePieceAndInitialize(coords, piece.team, typeof(Queen));
+    }
 
     private bool CheckIfGameIsFinished()
     {

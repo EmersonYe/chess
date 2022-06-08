@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(SquareSelectorCreator))]
@@ -70,6 +71,9 @@ public class Board : MonoBehaviour
         UpdateBoardOnPieceMove(coords, piece.occupiedSquare, piece, null);
         selectedPiece.MovePiece(coords);
         DeselectPiece();
+        if (piece is Pawn && new []{0,7}.Contains(coords.y)) {
+            chessController.Promote(piece);
+        }
         EndTurn();
     }
 
