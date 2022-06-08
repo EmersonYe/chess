@@ -138,9 +138,10 @@ public class ChessGameController : MonoBehaviour
             {
                 foreach (Vector2Int coordsToMoveTo in piece.availableMoves)
                 {
+                    Vector2Int pieceOriginalOccupiedSquare = piece.occupiedSquare;
                     Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
                     // need to also update piece.occupied square
-                    board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, null);
+                    board.UpdateBoardOnPieceMove(coordsToMoveTo, pieceOriginalOccupiedSquare, piece, null);
                     if (pieceOnCoords != null)
                     {
                         GetPlayer(pieceOnCoords.team).removePiece(pieceOnCoords);
@@ -151,7 +152,7 @@ public class ChessGameController : MonoBehaviour
                         // TODO(mrsn): consider breaking out of loop here
                         isOpponentKingSafe = true;
                     }
-                    board.UpdateBoardOnPieceMove(piece.occupiedSquare, coordsToMoveTo, piece, pieceOnCoords);
+                    board.UpdateBoardOnPieceMove(pieceOriginalOccupiedSquare, coordsToMoveTo, piece, pieceOnCoords);
                     if (pieceOnCoords != null)
                     {
                         GetPlayer(pieceOnCoords.team).addPiece(pieceOnCoords);
@@ -198,11 +199,12 @@ public class ChessGameController : MonoBehaviour
             List<Vector2Int> coordsToRemove = new List<Vector2Int>();
             for (int j = 0; j < piece.availableMoves.Count; j++)
             {
+                Vector2Int pieceOriginalOccupiedSquare = piece.occupiedSquare;
                 Vector2Int coordsToMoveTo = piece.availableMoves[j];
                 Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
-                board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, null);
-                // Not sure if this is needed
-                if (pieceOnCoords != null)
+                board.UpdateBoardOnPieceMove(coordsToMoveTo, pieceOriginalOccupiedSquare, piece, null);
+                piece.occupiedSquare = coordsToMoveTo;
+                if (pieceOnCoords)
                 {
                     GetPlayer(pieceOnCoords.team).removePiece(pieceOnCoords);
                 }
@@ -211,9 +213,10 @@ public class ChessGameController : MonoBehaviour
                 {
                     coordsToRemove.Add(coordsToMoveTo);
                 }
-                board.UpdateBoardOnPieceMove(piece.occupiedSquare, coordsToMoveTo, piece, pieceOnCoords);
+                board.UpdateBoardOnPieceMove(pieceOriginalOccupiedSquare, coordsToMoveTo, piece, pieceOnCoords);
+                piece.occupiedSquare = pieceOriginalOccupiedSquare;
                 // Not sure if this is needed
-                if (pieceOnCoords != null)
+                if (pieceOnCoords)
                 {
                     GetPlayer(pieceOnCoords.team).addPiece(pieceOnCoords);
                 }
