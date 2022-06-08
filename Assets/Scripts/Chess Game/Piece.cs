@@ -60,7 +60,7 @@ public abstract class Piece : MonoBehaviour
         availableMoves.Add(coords);
     }
 
-    public void SetData(Vector2Int squareCoords, TeamColor team, Board board)
+    public virtual void SetData(Vector2Int squareCoords, TeamColor team, Board board)
     {
         this.team = team;
         occupiedSquare = squareCoords;

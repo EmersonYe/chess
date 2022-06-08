@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -72,7 +71,7 @@ public class PlayModeTestSuite
         ClickOnCoords(5, 6);
         yield return null;
         Assert.True(chessGameController.IsGameInProgress());
-        King whiteKing = (King) board.GetPieceOnSquare(new Vector2Int(4, 7));
+        King whiteKing = (King)board.GetPieceOnSquare(new Vector2Int(4, 7));
         Assert.That(whiteKing.availableMoves.Contains(new Vector2Int(5, 6)));
         ClickOnCoords(4, 7);
         ClickOnCoords(5, 6);
@@ -131,8 +130,41 @@ public class PlayModeTestSuite
         Assert.False(chessGameController.IsGameInProgress());
     }
 
+    [UnityTest]
+    public IEnumerator Castle()
+    {
+        ClickOnCoords(4, 1);
+        ClickOnCoords(4, 3);
+        // Waiting move, just move knight somewhere
+        ClickOnCoords(1, 7);
+        ClickOnCoords(0, 5);
+
+        ClickOnCoords(6, 0);
+        ClickOnCoords(5, 2);
+        // Waiting move, just move knight back
+        ClickOnCoords(0, 5);
+        ClickOnCoords(1, 7);
+
+        ClickOnCoords(5, 0);
+        ClickOnCoords(2, 3);
+        // Waiting move, just move knight somewhere
+        ClickOnCoords(1, 7);
+        ClickOnCoords(0, 5);
+
+        ClickOnCoords(4, 0);
+        ClickOnCoords(6, 0);
+        // Waiting move, just move knight back
+        ClickOnCoords(0, 5);
+        ClickOnCoords(1, 7);
+
+        Assert.IsInstanceOf(typeof(King), board.GetPieceOnSquare(new Vector2Int(6, 0)));
+        Assert.IsInstanceOf(typeof(Rook), board.GetPieceOnSquare(new Vector2Int(5, 0)));
+
+        yield return null;
+    }
+
     private void ClickOnCoords(int x, int y)
     {
-        boardInputHandler.ProcessInput(board.CalculatePositionFromCoords(new Vector2Int(x,y)), null, null);
+        boardInputHandler.ProcessInput(board.CalculatePositionFromCoords(new Vector2Int(x, y)), null, null);
     }
 }
