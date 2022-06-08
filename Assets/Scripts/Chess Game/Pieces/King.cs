@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class King : Piece
 {
-    private Vector2Int[] directions = new Vector2Int[] { new Vector2Int(-1,-1),
+    private Vector2Int[] directions = new Vector2Int[] {
+        new Vector2Int(-1,-1),
         new Vector2Int(-1,1),
-        new Vector2Int(-1,1),
-        new Vector2Int(-1,1),
+        new Vector2Int(1,-1),
+        new Vector2Int(1,1),
         Vector2Int.down,
         Vector2Int.left,
         Vector2Int.right,

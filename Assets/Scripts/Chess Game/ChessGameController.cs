@@ -139,6 +139,7 @@ public class ChessGameController : MonoBehaviour
                 foreach (Vector2Int coordsToMoveTo in piece.availableMoves)
                 {
                     Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
+                    // need to also update piece.occupied square
                     board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, null);
                     if (pieceOnCoords != null)
                     {
@@ -190,12 +191,14 @@ public class ChessGameController : MonoBehaviour
 
     private void RemoveMovesThatPutOwnKingIntoCheck(ChessPlayer player)
     {
-        foreach (Piece piece in player.activePieces)
+        for (int i = 0; i < player.activePieces.Count; i++)
         {
+            Piece piece = player.activePieces[i];
             // Cacheing coords to remove instead of removing in the foreach loop because cannot modify the enum during the loop.
             List<Vector2Int> coordsToRemove = new List<Vector2Int>();
-            foreach (Vector2Int coordsToMoveTo in piece.availableMoves)
+            for (int j = 0; j < piece.availableMoves.Count; j++)
             {
+                Vector2Int coordsToMoveTo = piece.availableMoves[j];
                 Piece pieceOnCoords = board.GetPieceOnSquare(coordsToMoveTo);
                 board.UpdateBoardOnPieceMove(coordsToMoveTo, piece.occupiedSquare, piece, null);
                 // Not sure if this is needed
@@ -224,14 +227,16 @@ public class ChessGameController : MonoBehaviour
         // Necessary to prevent hanging when king is not initialized.
         if (player.king == null)
             return false;
-        // For some reason this is returning true after the first move
         Vector2Int kingCoords = player.king.occupiedSquare;
-        int numPiecesAttackingKing = GetOpponentToPlayer(player).activePieces
-            .Select(x => x.availableMoves)
-            .Where(x => x.Contains(kingCoords))
-            .Count();
-        return numPiecesAttackingKing > 0;
-
+        List<Piece> opponentsPieces = GetOpponentToPlayer(player).activePieces;
+        foreach (Piece opponentsPiece in opponentsPieces)
+        {
+            if (opponentsPiece.availableMoves.Contains(kingCoords))
+            {
+                return true;
+            }
+        }
+        return false;
     }
     internal ChessPlayer GetPlayer(TeamColor team)
     {
@@ -247,7 +252,6 @@ public class ChessGameController : MonoBehaviour
     private void ChangeActiveTeam()
     {
         activePlayer = GetOpponentToPlayer(activePlayer);
-        Debug.Log("Active team: " + activePlayer.team);
     }
 
     private ChessPlayer GetOpponentToPlayer(ChessPlayer player)
@@ -272,11 +276,5 @@ public class ChessGameController : MonoBehaviour
         {
             currentPlayer.king = (King)newPiece;
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }
