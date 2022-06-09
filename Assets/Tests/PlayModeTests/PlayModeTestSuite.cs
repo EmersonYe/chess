@@ -157,10 +157,52 @@ public class PlayModeTestSuite
         ClickOnCoords(0, 5);
         ClickOnCoords(1, 7);
 
+        yield return null;
         Assert.IsInstanceOf(typeof(King), board.GetPieceOnSquare(new Vector2Int(6, 0)));
         Assert.IsInstanceOf(typeof(Rook), board.GetPieceOnSquare(new Vector2Int(5, 0)));
 
+    }
+
+    // Fun fact: this is the fastest possible en passant checkmate according to https://chess.stackexchange.com/questions/21492/fastest-possible-checkmate-by-en-passant.
+    [UnityTest]
+    public IEnumerator EnPassantIntoCheckmate()
+    {
+        // 1. e4 e6
+        ClickOnCoords(4, 1);
+        ClickOnCoords(4, 3);
+        ClickOnCoords(4, 6);
+        ClickOnCoords(4, 5);
+
+        // 2. e5 g5
+        ClickOnCoords(4, 3);
+        ClickOnCoords(4, 4);
+        ClickOnCoords(6, 6);
+        ClickOnCoords(6, 4);
+
+        // 3. Nc3 Nh6
+        ClickOnCoords(1, 0);
+        ClickOnCoords(2, 2);
+        ClickOnCoords(6, 7);
+        ClickOnCoords(7, 5);
+
+        // 4. Qh5 Ke7
+        ClickOnCoords(3, 0);
+        ClickOnCoords(7, 4);
+        ClickOnCoords(4, 7);
+        ClickOnCoords(4, 6);
+
+        // 5. Ne4 f5
+        ClickOnCoords(2, 2);
+        ClickOnCoords(4, 3);
+        ClickOnCoords(5, 6);
+        ClickOnCoords(5, 4);
+
+        // 6. exf6#
+        ClickOnCoords(4, 4);
+        ClickOnCoords(5, 5);
+
         yield return null;
+        Assert.False(chessGameController.IsGameInProgress());
     }
 
     private void ClickOnCoords(int x, int y)

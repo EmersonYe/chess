@@ -77,7 +77,7 @@ public class Board : MonoBehaviour
         EndTurn();
     }
 
-    private void TryToCapture(Vector2Int coords)
+    public void TryToCapture(Vector2Int coords)
     {
         Piece piece = GetPieceOnSquare(coords);
         if(piece != null && !selectedPiece.IsFromSameTeam(piece))

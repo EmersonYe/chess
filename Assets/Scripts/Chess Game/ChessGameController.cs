@@ -107,12 +107,24 @@ public class ChessGameController : MonoBehaviour
 
     public void EndTurn()
     {
+        ChessPlayer opponent = GetOpponentToPlayer(activePlayer);
+
+        UpdateEnPassantVulnerability(opponent);
         GenerateAllPossiblePlayerMoves(activePlayer);
-        GenerateAllPossiblePlayerMoves(GetOpponentToPlayer(activePlayer));
+        GenerateAllPossiblePlayerMoves(opponent);
         if (CheckIfGameIsFinished())
             EndGame();
         else
             ChangeActiveTeam();
+    }
+
+    private void UpdateEnPassantVulnerability(ChessPlayer chessPlayer)
+    {
+        foreach (Piece piece in chessPlayer.activePieces)
+        {
+            if (piece is Pawn)
+                ((Pawn)piece).isVulnerableToEnPassant = false;
+        }
     }
 
     internal void OnPieceRemoved(Piece piece)

@@ -1,9 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Pawn : Piece
 {
+    public bool isVulnerableToEnPassant = false;
     private Vector2Int forward;
     public override List<Vector2Int> SelectAvailableSquares()
     {
@@ -31,6 +32,40 @@ public class Pawn : Piece
         {
             TryToAddMove(occupiedSquare + forward + Vector2Int.left);
         }
+        TryToAddEnPassant();
         return availableMoves;
+    }
+
+    private void TryToAddEnPassant()
+    {
+        if (new[] { 0, 7 }.Contains((occupiedSquare + forward * 3).y))
+        {
+            Piece leftPiece = board.GetPieceOnSquare(occupiedSquare + Vector2Int.left);
+            if (leftPiece && !this.IsFromSameTeam(leftPiece) && leftPiece is Pawn &&
+                ((Pawn)leftPiece).isVulnerableToEnPassant)
+            {
+                TryToAddMove(occupiedSquare + forward + Vector2Int.left);
+            }
+            Piece rightPiece = board.GetPieceOnSquare(occupiedSquare + Vector2Int.right);
+            if (rightPiece && !this.IsFromSameTeam(rightPiece) && rightPiece is Pawn &&
+                ((Pawn)rightPiece).isVulnerableToEnPassant)
+            {
+                TryToAddMove(occupiedSquare + forward + Vector2Int.right);
+            }
+        }
+    }
+
+    public override void MovePiece(Vector2Int coords)
+    {
+        Vector2Int originalCoord = occupiedSquare;
+        base.MovePiece(coords);
+        if (coords.x != originalCoord.x && board.GetPieceOnSquare(coords - forward))
+        {
+            board.TryToCapture(coords - forward);
+        }
+        else if (coords.Equals(originalCoord + forward * 2))
+        {
+            isVulnerableToEnPassant = true;
+        }
     }
 }
